@@ -26,7 +26,7 @@ class RRTStar:
                  max_iter=500,
                  smoothness_weight=10.0, 
                  max_turn_angle_deg=60.0,
-                 vision_range=20.0     # <-- NEW: only see (and thus sample) within 20 units
+                 vision_range=20.0     # agent can only see 20 units
                  ):
         """
         :param start: (x, y, z)
@@ -96,15 +96,13 @@ class RRTStar:
 
         return None  # Not found within max_iter
 
-    # ------------------------------------------------------------
-    #  UPDATED: Only sample around the "current" node within vision_range
-    # ------------------------------------------------------------
+    #only sample around the new 20 unit limit from agent
     def get_random_node(self):
         # Chance to sample the goal
         if random.randint(0, 100) <= self.goal_sample_rate:
             return Node(self.goal.x, self.goal.y, self.goal.z)
 
-        # "Current node" = last node in the tree (the frontier)
+        # "Current node" = last node in the tree
         current_node = self.node_list[-1]
 
         # Local bounding box for sampling, clamped to global bounds
@@ -122,9 +120,6 @@ class RRTStar:
 
         return Node(x, y, z)
 
-    # ------------------------------------------------------------
-    #  The rest of the code remains the same as before...
-    # ------------------------------------------------------------
     def get_nearest_node_index(self, rnd_node):
         dlist = [(node.x - rnd_node.x)**2 + (node.y - rnd_node.y)**2 + (node.z - rnd_node.z)**2
                  for node in self.node_list]
@@ -266,7 +261,6 @@ class RRTStar:
         path.append([node.x, node.y, node.z])
         return path[::-1]
 
-    # -------------- Path smoothing --------------
     def smooth_path(self, path, obstacle_list, iterations=100):
         if path is None or len(path) < 3:
             return path
@@ -336,7 +330,6 @@ class RRTStar:
                     return False
         return True
 
-    # -------------- Visualization --------------
     def draw_graph(self, rnd=None, path=None):
         ax = plt.figure().add_subplot(projection='3d')
         if rnd is not None:
@@ -404,7 +397,7 @@ def main():
         ("rectprism", 62.5, 40, 30, 10, 10, 30)
     ]
 
-    # Instantiate RRT* with a 20-unit vision range
+    # Instantiate RRT* with a 20 unit vision range
     rrt_star = RRTStar(
         start=start,
         goal=goal,
