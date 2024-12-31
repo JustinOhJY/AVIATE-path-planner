@@ -375,6 +375,19 @@ class RRTStar:
             zs = [corners[i][2], corners[j][2]]
             ax.plot(xs, ys, zs, color='r')
 
+    def print_waypoints(self, path):
+        """
+        Prints all waypoints in the given path.
+
+        :param path: list of [x, y, z] waypoints
+        """
+        if not path:
+            print("No path to print!")
+            return
+
+        for i, waypoint in enumerate(path):
+            x, y, z = waypoint
+            print(f"Waypoint {i}: x={x:.2f}, y={y:.2f}, z={z:.2f}")
 
 def main():
     print("Starting RRT* with Limited Vision...")
@@ -417,6 +430,7 @@ def main():
         print("No path found!")
     else:
         print("Path found!")
+        rrt_star.print_waypoints(path)
         rrt_star.draw_graph(path=path)
 
 
