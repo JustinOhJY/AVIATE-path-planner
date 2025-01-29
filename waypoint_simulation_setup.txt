@@ -1,0 +1,58 @@
+- Terminal 1: Launch Gazebo Simulation
+conda activate aerial_robotics
+source ~/aerial_robotics_ws/devel/setup.bash
+roslaunch robowork_minihawk_gazebo minihawk_playpen.launch
+
+- Terminal 2: Start Ardupilot SITL
+conda activate aerial_robotics
+cd ~/aerial_robotics_ws/ardupilot
+./Tools/autotest/sim_vehicle.py -v ArduPlane -f gazebo-minihawk --model gazebo-quadplane-tilttri --console --map --wipe
+
+Once SITL is running, use MAVProxy to adjust key parameters:
+param set Q_TRANSITION_MS 8000
+param set Q_TRANS_FAIL 30
+param set Q_THR_MIN 0.7
+param save
+
+- Terminal 3: Launch RViz Visualization
+conda activate aerial_robotics
+source ~/aerial_robotics_ws/devel/setup.bash
+rviz -d ~/aerial_robotics_ws/src/aerial_robotics/robowork_minihawk_launch/config/minihawk_SIM.rviz
+
+- Terminal 4: Launch MAVROS Node
+conda activate aerial_robotics
+source ~/aerial_robotics_ws/devel/setup.bash
+ROS_NAMESPACE="minihawk_SIM" roslaunch robowork_minihawk_launch vehicle1_apm_SIM.launch
+
+- Terminal 5: Run waypoints.py Script to Automate Waypoint Upload
+conda activate aerial_robotics
+source ~/aerial_robotics_ws/devel/setup.bash
+python ~/AVIATE/waypoints.py
+
+- Optional: 
+- Observe AprilTag Detections (Optional Terminal):
+rostopic echo /minihawk_SIM/MH_usb_camera_link_optical/tag_detections
+
+-global position: 
+rostopic echo /minihawk_SIM/mavros/global_position/global
+
+- Switching Flight Modes or Controlling VTOL (Optional Terminal):
+rosservice call /minihawk_SIM/mavros/set_mode "custom_mode: 'QLOITER'"
+
+Debug: 
+rostopic echo /minihawk_SIM/mavros/mission/reached
+rostopic echo /minihawk_SIM/mavros/mission/waypoints
+rostopic echo /minihawk_SIM/mavros/state
+rostopic echo /minihawk_SIM/mavros/global_position/global
+
+
+conda activate aerial_robotics
+source ~/aerial_robotics_ws/devel/setup.bash
+python ~/AVIATE/startup.py
+
+param set Q_TRANSITION_MS 8000
+
+conda activate aerial_robotics
+source ~/aerial_robotics_ws/devel/setup.bash
+python ~/AVIATE/waypoint_manager.py
+
